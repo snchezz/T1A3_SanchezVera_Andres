@@ -12,12 +12,22 @@ else
 fi
 
 # Copia seguridad
-# zip -r copia_usuarios_$(date +%d%m%Y)_$(date +%H:%M:%S).zip .
 
-prueba=$(test copia_usuarios_06112022_14:10:32.zip -ot copia_usuarios_06112022_14:13:48.zip)
-
-if [ "copia_usuarios_06112022_14:10:32.zip" -ot "copia_usuarios_06112022_14:10:.zip" ]; then
+if [ "copia_usuarios_06112022_15:07:54.zip" -ot "copia_usuarios_06112022_15:09:06.zip" ]; then
     echo "Copia 1 es mayor"
+
 else
     echo "Copia 2 es mayor"
 fi
+
+busqueda=$(find . -name "*zip" | wc -l)
+if [[ $buesqueda > "2"]]; then
+    echo "Hay mas de 2"
+fi
+
+# Se crea la copia de seguridad de la carpeta donde se encuentra el script
+#zip -r copia_usuarios_$(date +%d%m%Y)_$(date +%H:%M:%S).zip .
+
+# Se borra el mas antiguo, buscando archivos zip
+#antugio=$(find . -name "*zip" | sort | head -n 1)
+#rm $antugio
