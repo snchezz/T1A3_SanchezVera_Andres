@@ -5,6 +5,7 @@
 # Exit code 0: Todo ha funcionado correctamente.
 # Exit code 1: El formato introducido no es el correcto.
 # Exit code 2: Usuario (DNI) ya en el sistema
+# Exit code 3: Intentos maximos permitidos
 
 # Cuando se inice el sistema, se añadera el dia, mes, año, hora, minuto para saber los cambios que se produjeron en ese momento que se ejecuto
 echo "------------$(date +%d%m%Y:%H:%M)------------" >>log.log
@@ -216,32 +217,86 @@ function menu() {
     done
 }
 
-# Comprobar si el fichero existe
-#if [ -f usuarios.csv ]; then
-#    echo "El fichero existe"
-#else
-#    echo "Fichero usuarios.csv creado el $(date +%d-%m-%Y) a las $(date +%H:%M:%S)" >>usuarios.csv
-#    echo "" >>usuarios.csv
-#    echo "Nombre:1erApellido:2oApellido:DNI:NombreUser" >>usuarios.csv
-#fi
+function login() {
+    echo "    - - - - - - - IPASEN+ BY ANDRÉS SANCHEZ- - - - - - -    "
+    echo "GitHub: https://github.com/snchezz"
+    sleep 2s
 
-# Read Password
-# echo -n Usuario:
-# read -s user
-# echo $user
+    for i in {1..4}; do
+        if [[ "$i" == '4' ]]; then
+            echo "Ya has superado el intento"
+            exit 3
+        fi
+        echo -n "Introduca nombre de usuario: "
+        read -s username
+        existeUsername=$(grep -c $username usuarios.csv)
+        # Afinar que solo busque nombres de usuarios, ya que si pones el nombre tb lo coge
+        nombreUsername=$(awk -F ":" '{print $5}' usuarios.csv | grep -o $username usuarios.csv)
 
-echo "    - - - - - - - IPASEN + BY ANDRÉS SANCHEZ- - - - - - -    "
-sleep 1s
-echo -n "Introduca nombre de usuario: "
-read username
-existeUsername=$(grep -i $username usuarios.csv | wc -l)
-if [[ $existeUsername = "1" ]]; then
-    echo "Lo sentimos, este DNI ya esta registrado en el sistema."
-    echo "Intentalo de nuevo o inicia sesion con tu usuario"
-    exit 2 
-    else 
-    echo "No existe jijiji"
+        if [[ $existeUsername = "1" ]]; then
+            echo ""
+            echo ""
+            echo "¡Bienvenido $nombreUsername!"
+            menuuser
+        else
+            echo "El usuario no esta registrado en el sistema, intentelo de nuevo"
+        fi
+    done
+
+}
+
+function menuuser() {
+    while true; do
+        echo "Elige una opción"
+        echo "1.- EJECUTAR COPIA DE SEGURIDAD
+2.- MOSTRAR USUARIOS
+3.- MOSTRAR LOG DEL SISTEMA
+4.- CERRAR SESION
+5.- SALIR"
+
+        # Leemos la opción que ha elegido y llamamos a la función correspondiente
+        read opc
+        case $opc in
+        1)
+            copia
+            ;;
+        2)
+            mostrar_usuarios
+            ;;
+        3)
+            mostrar_log
+            ;;
+        4)
+            echo "Cerrando sesion en el sistema..."
+            echo "Hasta la pŕoxima, $nombreUsername"
+            sleep 2s
+            clear
+            echo ""
+            login
+            ;;
+        5)
+            echo ""
+            echo "Saliendo del sistema..."
+            exit 0
+            ;;
+        *)
+            # Si no se ha elegido una opción válida
+            echo "Elige una opción válida. Si quieres salir, pulsa 6"
+            sleep 1s
+            echo ""
+            ;;
+        esac
+    done
+}
+
+# Para entrar como admin deberemos usar -root como parametro
+if [ "$1" = "-root" ]; then
+    echo "Bienvenido admin"
+    menu
+else
+    echo "No se reconoce el parametro, se procedera a un inicio de sesión normal."
+    sleep 3s
+    clear
 fi
 
-
-menu
+login
