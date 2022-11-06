@@ -1,12 +1,13 @@
 #!/bin/bash
 
+# Crear usuario 
 echo -n "Nombre: "
 read nombre
 echo -n "Primer Apellido: "
 read ape1
 echo -n "Segundo Apellido: "
 read ape2
-echo -n "DNI "
+echo -n "DNI: "
 read dni
 
 nombrecortado=$(echo "$nombre" | tr '[:upper:]' '[:lower:]' | cut -b 1)
@@ -26,6 +27,7 @@ echo "$nombre:$ape1:$ape2:$dni:$usergen" >> usuarios.csv
 
 
 # Podemos poner dni / o de los extranjeros tb
+# Comprobar DNI
 # read REPLY
 # if [[ $REPLY =~ ^[0-9]{8}+[A-Za-z]{1} ]]; then
 #     echo DNI YES
@@ -33,6 +35,7 @@ echo "$nombre:$ape1:$ape2:$dni:$usergen" >> usuarios.csv
 #     echo NO DNI
 # fi
 
+# Comprobar usuario root
 # if [ "$1" = "-root" ]; then
 #     echo "El usuario es root"
 # else
