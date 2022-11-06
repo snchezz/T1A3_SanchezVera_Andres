@@ -137,8 +137,9 @@ function mostrar_usuarios() {
         echo ""
         echo "Elige como quieres mostrar los usuarios"
         echo "1.- POR ORDEN DE ALTA"
-        echo "2.- POR ORDEN ALFABETICO"
-        echo "3.- VOLVER ATRAS"
+        echo "2.- POR ORDEN DEL DNI"
+        echo "3.- POR ORDEN ALFABETICO (USUARIO)"
+        echo "4.- VOLVER ATRAS"
         read opcusers
 
         case $opcusers in
@@ -160,7 +161,14 @@ function mostrar_usuarios() {
             ;;
         3)
             echo ""
-            menu
+            echo "LISTA DE USUARIOS POR ORDEN DEL DNI"
+            cat usuarios.csv | sed '1d' usuarios.csv | awk -F ":" '{print $4":"$1":"$2":"$3":"$5}' | sort
+            read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
+            echo ""
+            ;;
+        4)
+            echo ""
+            menuuser
             ;;
         *)
             # Si no se ha elegido una opción válida
@@ -281,7 +289,7 @@ function menuuser() {
             ;;
         *)
             # Si no se ha elegido una opción válida
-            echo "Elige una opción válida. Si quieres salir, pulsa 6"
+            echo "Elige una opción válida. Si quieres salir, pulsa 5"
             sleep 1s
             echo ""
             ;;
