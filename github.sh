@@ -39,7 +39,7 @@ function comprobarOrigin {
     fi
 }
 
-sleep 4s
+# sleep 4s
 echo "Elige una de estas opciones"
 echo " 1) Crear repositorio
  2) Actualizar repositorio ya creado
