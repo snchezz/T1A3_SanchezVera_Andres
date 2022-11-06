@@ -6,6 +6,10 @@
 # Exit code 1: El formato introducido no es el correcto.
 # Exit code 2: Usuario (DNI) ya en el sistema
 
+# Cuando se inice el sistema, se añadera el dia, mes, año, hora, minuto para saber los cambios que se produjeron en ese momento que se ejecuto
+echo "------------$(date +%d%m%Y:%H:%M)------------" >>  log.log
+echo "------------$(date +%d%m%Y:%H:%M)------------" >>  usuarios.csv
+
 function copia() {
     # Se crea la copia de seguridad de la carpeta donde se encuentra el script.
     # La opción -r es para que sea recursivo
