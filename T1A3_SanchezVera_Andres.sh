@@ -6,10 +6,22 @@
 # Exit code 1: El formato introducido no es el correcto.
 # Exit code 2: Usuario (DNI) ya en el sistema
 # Exit code 3: Intentos maximos permitidos
+# Exit code 4: Archivo usuarios.csv vacio
 
-# Cuando se inice el sistema, se añadera el dia, mes, año, hora, minuto para saber los cambios que se produjeron en ese momento que se ejecuto
-echo "------------$(date +%d%m%Y:%H:%M)------------" >>log.log
-echo "------------$(date +%d%m%Y:%H:%M)------------" >>usuarios.csv
+# Lo primero que hara el sistema es comprobar si el archivo usuarios.csv este creado, si no lo esta, lo creara
+if ! [ -f usuarios.csv ]; then
+    touch usuarios.csv
+fi
+
+function archivoVacio() {
+    if [ -s usuarios.csv ]; then
+        # Cuando el archivo este vacio, se le pondra la variable 0
+        archivoUsuarioVacio=0
+    else
+        # Cuando el archivo este vacio, se le pondra la variable 1
+        archivoUsuarioVacio=1
+    fi
+}
 
 function copia() {
     # Se crea la copia de seguridad de la carpeta donde se encuentra el script.
@@ -100,6 +112,12 @@ function existe() {
 }
 
 function baja() {
+    archivoVacio
+    if [[ $archivoUsuarioVacio = "1" ]]; then
+        echo "El archivo usuarios.csv, esta vacio, por lo tanto no se podrá dar de baja a ningun usuario"
+        exit 4
+    fi
+
     echo "Porfavor, indica tu DNI para darte de baja en el sistema:"
     read dni
     comprobarDNI
@@ -119,8 +137,6 @@ function baja() {
         echo "El DNI $dni no esta registrado en el sistema"
         echo ""
     fi
-
-    # existe
 }
 
 function mostrar_log() {
@@ -133,52 +149,70 @@ function mostrar_log() {
 }
 
 function mostrar_usuarios() {
-    while true; do
-        echo ""
-        echo "Elige como quieres mostrar los usuarios"
-        echo "1.- POR ORDEN DE ALTA"
-        echo "2.- POR ORDEN DEL DNI"
-        echo "3.- POR ORDEN ALFABETICO (USUARIO)"
-        echo "4.- VOLVER ATRAS"
-        read opcusers
+    if [[ $archivoUsuarioVacio = "1" ]]; then
+        echo "El archivo usuarios.csv, esta vacio, por lo tanto no se podrá mostrar ningun usuario"
+        exit 4
+    else
+        while true; do
+            echo ""
+            echo "Elige como quieres mostrar los usuarios"
+            echo "1.- POR ORDEN DE ALTA"
+            echo "2.- POR ORDEN DEL DNI"
+            echo "3.- POR ORDEN ALFABETICO (USUARIO)"
+            echo "4.- POR ORDEN ALFABETICO (ALUMNO)"
+            echo "5.- VOLVER ATRAS"
+            read opcusers
 
-        case $opcusers in
-        1)
-            echo ""
-            # PONER BONITO ESTO (INTENTO DE TABLA)
-            echo "LISTA DE USUARIOS POR ORDEN DE ALTA"
-            cat usuarios.csv | sed '1d' usuarios.csv | awk -F ":" '{print $5":"$1":"$2":"$3":"$4}'
-            read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
-            echo ""
-            menu
-            ;;
-        2)
-            echo ""
-            echo "LISTA DE USUARIOS POR ORDEN ALFABETICO"
-            cat usuarios.csv | sed '1d' usuarios.csv | awk -F ":" '{print $5":"$1":"$2":"$3":"$4}' | sort
-            read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
-            echo ""
-            ;;
-        3)
-            echo ""
-            echo "LISTA DE USUARIOS POR ORDEN DEL DNI"
-            cat usuarios.csv | sed '1d' usuarios.csv | awk -F ":" '{print $4":"$1":"$2":"$3":"$5}' | sort
-            read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
-            echo ""
-            ;;
-        4)
-            echo ""
-            menuuser
-            ;;
-        *)
-            # Si no se ha elegido una opción válida
-            echo "Elige una opción válida. Si quieres volver atras, pulsa 3"
-            sleep 1s
-            echo ""
-            ;;
-        esac
+            case $opcusers in
+            1)
+                echo ""
+                # PONER BONITO ESTO (INTENTO DE TABLA)
+                echo "LISTA DE USUARIOS POR ORDEN DE ALTA"
+                cat usuarios.csv | awk -F ":" '{print $5":"$1":"$2":"$3":"$4}'
+                echo ""
+                read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
+                echo ""
+                mostrar_usuarios
+                ;;
+            2)
+                echo ""
+                echo "LISTA DE USUARIOS POR ORDEN DNI"
+                cat usuarios.csv | awk -F ":" '{print $4":"$1":"$2":"$3":"$5}' | sort
+                echo ""
+                read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
+                echo ""
+                mostrar_usuarios
+                ;;
+            3)
+                echo ""
+                echo "LISTA DE USUARIOS POR ORDEN ALFABETICO DEL NOMBRE DE USUARIO"
+                cat usuarios.csv | awk -F ":" '{print $5":"$1":"$2":"$3":"$4}' | sort
+                read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
+                echo ""
+                mostrar_usuarios
+                ;;
+            4)
+                echo ""
+                echo "LISTA DE USUARIOS POR ORDEN ALFABETICO DEL NOMBRE DEL ALUMNO"
+                cat usuarios.csv | awk -F ":" '{print $1":"$2":"$3":"$4":"5}' | sort
+                read -n 1 -r -s -p $'Pulsa cualquier letra para que aparezca el menu...\n'
+                echo ""
+                mostrar_usuarios
+                ;;
+            5)
+                echo ""
+                menu
+                ;;
+            *)
+                # Si no se ha elegido una opción válida
+                echo "Elige una opción válida. Si quieres volver atras, pulsa 5"
+                sleep 1s
+                echo ""
+                ;;
+            esac
+        done
+    fi
 
-    done
 }
 
 function menu() {
@@ -198,10 +232,21 @@ function menu() {
             copia
             ;;
         2)
-            alta
+            if [[ $rootTrue = "1" ]]; then
+                alta
+            else
+                echo "Accion no permitida para este usuario"
+                echo ""
+            fi
             ;;
         3)
-            baja
+            if [[ $rootTrue = "1" ]]; then
+                baja
+            else
+                echo "Accion no permitida para este usuario"
+                echo ""
+            fi
+
             ;;
         4)
             mostrar_usuarios
@@ -213,7 +258,6 @@ function menu() {
             echo ""
             echo "Saliendo del sistema..."
             exit 0
-            # borrar log?
             ;;
         *)
             # Si no se ha elegido una opción válida
@@ -230,6 +274,12 @@ function login() {
     echo "GitHub: https://github.com/snchezz"
     sleep 2s
 
+    archivoVacio
+    if [[ $archivoUsuarioVacio = "1" ]]; then
+        echo "El archivo usuarios.csv, esta vacio, por lo tanto no se podrá iniciar sesion ningun usuario"
+        exit 4
+    fi
+
     for i in {1..4}; do
         if [[ "$i" == '4' ]]; then
             echo "Ya has superado el intento"
@@ -245,61 +295,19 @@ function login() {
             echo ""
             echo ""
             echo "¡Bienvenido $nombreUsername!"
-            menuuser
+            echo "Ha iniciado sesion $nombreUsername el dia $(date +%d%m%Y) a las $(date +d%H:%M)" >>log.log
+            menu
         else
             echo "El usuario no esta registrado en el sistema, intentelo de nuevo"
         fi
-    done
-
-}
-
-function menuuser() {
-    while true; do
-        echo "Elige una opción"
-        echo "1.- EJECUTAR COPIA DE SEGURIDAD
-2.- MOSTRAR USUARIOS
-3.- MOSTRAR LOG DEL SISTEMA
-4.- CERRAR SESION
-5.- SALIR"
-
-        # Leemos la opción que ha elegido y llamamos a la función correspondiente
-        read opc
-        case $opc in
-        1)
-            copia
-            ;;
-        2)
-            mostrar_usuarios
-            ;;
-        3)
-            mostrar_log
-            ;;
-        4)
-            echo "Cerrando sesion en el sistema..."
-            echo "Hasta la pŕoxima, $nombreUsername"
-            sleep 2s
-            clear
-            echo ""
-            login
-            ;;
-        5)
-            echo ""
-            echo "Saliendo del sistema..."
-            exit 0
-            ;;
-        *)
-            # Si no se ha elegido una opción válida
-            echo "Elige una opción válida. Si quieres salir, pulsa 5"
-            sleep 1s
-            echo ""
-            ;;
-        esac
     done
 }
 
 # Para entrar como admin deberemos usar -root como parametro
 if [ "$1" = "-root" ]; then
+    rootTrue=1
     echo "Bienvenido admin"
+    echo "Ha iniciado sesion administrador $(date +%d%m%Y:%H:%M)" >>log.log
     menu
 else
     echo "No se reconoce el parametro, se procedera a un inicio de sesión normal."

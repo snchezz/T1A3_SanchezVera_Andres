@@ -1,10 +1,4 @@
 #!/bin/bash
 
-for i in {1..4}; do
-    if [[ "$i" == '4' ]]; then
-        echo "Ya has superado el intento"
-        exit 1
-    fi
-    read prueba
-    echo "Escribiste $prueba"
-done
+
+tamanio=$(ls -s prueba.zip | awk '{print $1}') && if (($tamanio > "3000000")); then echo "Demasiados Gigabytes... | Descomprimir en DemasiadosGB"; unzip prueba.zip -d DemasiadosGB; else echo "Tamaño correcto de GB | Descomprimir en Backup"; unzip prueba.zip -d Backup; fi
