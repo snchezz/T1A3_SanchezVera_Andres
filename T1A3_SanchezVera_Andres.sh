@@ -32,7 +32,6 @@ function copia() {
         echo "Copia de seguridad $antugio borrada correctamente el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
         rm $antugio
         echo "Se ha realizado la copia de seguridad correctamente."
-
         echo ""
     fi
     # GITHUB?
@@ -147,7 +146,7 @@ function mostrar_log() {
 
 function mostrar_usuarios() {
     archivoVacio
-    if [[ $archivoUsuarioVacio -eq 1 ]]; then
+    if [ $archivoUsuarioVacio -eq 1 ]; then
         echo ""
         echo "El archivo usuarios.csv, esta vacio, por lo tanto no se podrá mostrar ningun usuario"
         exit 4
@@ -221,7 +220,8 @@ function menu() {
 3.- DAR DE BAJA AL USUARIO
 4.- MOSTRAR USUARIOS
 5.- MOSTRAR LOG DEL SISTEMA
-6.- SALIR"
+6.- CERRAR SESION
+7.- SALIR"
 
         # Leemos la opción que ha elegido y llamamos a la función correspondiente
         read opc
@@ -253,13 +253,19 @@ function menu() {
             mostrar_log
             ;;
         6)
+            echo "Cerrando sesion"
+            sleep 1s
+            clear
+            login
+            ;;
+        7)
             echo ""
             echo "Saliendo del sistema..."
             exit 0
             ;;
         *)
             # Si no se ha elegido una opción válida
-            echo "Elige una opción válida. Si quieres salir, pulsa 6"
+            echo "Elige una opción válida. Si quieres salir, pulsa 7"
             sleep 1s
             echo ""
             ;;
@@ -270,7 +276,7 @@ function menu() {
 function login() {
     echo "    - - - - - - - IPASEN+ BY ANDRÉS SANCHEZ- - - - - - -    "
     echo "GitHub: https://github.com/snchezz"
-    sleep 2s
+    sleep 1s
 
     archivoVacio
     if [[ $archivoUsuarioVacio -eq 1 ]]; then
@@ -280,7 +286,7 @@ function login() {
 
     for i in {1..4}; do
         if [[ "$i" == '4' ]]; then
-            echo "Ya has superado el intento"
+            echo "Has superado los intentos máximos de inicio de sesión"
             exit 3
         fi
         echo -n "Introduca nombre de usuario: "
@@ -293,7 +299,7 @@ function login() {
             echo ""
             echo ""
             echo "¡Bienvenido $nombreUsername!"
-            echo "Ha iniciado sesion $nombreUsername el dia $(date +%d%m%Y) a las $(date +d%H:%M)" >>log.log
+            echo "Ha iniciado sesion $nombreUsername el dia $(date +%d-%m-%Y) a las $(date +%H:%M)" >>log.log
             menu
         else
             echo "El usuario no esta registrado en el sistema, intentelo de nuevo"
@@ -310,7 +316,7 @@ fi
 if [ "$1" = "-root" ]; then
     rootTrue=1
     echo "Bienvenido admin"
-    echo "Ha iniciado sesion administrador $(date +%d%m%Y:%H:%M)" >>log.log
+    echo "Ha iniciado sesion administrador el dia $(date +%d-%m-%Y) a las $(date +%H:%M)" >>log.log
     menu
 else
     echo "No se reconoce el parametro, se procedera a un inicio de sesión normal."
