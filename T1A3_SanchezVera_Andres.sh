@@ -19,21 +19,135 @@ function archivoVacio() {
 }
 
 function copia() {
-    # Se crea la copia de seguridad de la carpeta donde se encuentra el script.
-    # La opción -r es para que sea recursivo
-    zip -r copia_usuarios_$(date +%d%m%Y)_$(date +%H:%M:%S).zip .
-    echo "Copia de seguridad copia_usuarios_$(date +%d%m%Y)_$(date +%H:%M:%S) realizada correctamente el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
+    function copialocal() {
+        # Se crea la copia de seguridad de la carpeta donde se encuentra el script.
+        # La opción -r es para que sea recursivo
+        zip -r copia_usuarios_$(date +%d%m%Y)_$(date +%H:%M:%S).zip .
+        echo "Copia de seguridad copia_usuarios_$(date +%d%m%Y)_$(date +%H:%M:%S) realizada correctamente el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
 
-    # Se hace una busqueda para que solo hayan 2 copias de seguridad (compara el número de copias .zip que hay)
-    busqueda=$(find . -name "copia_usuarios*zip" | wc -l)
-    if [[ $busqueda > "2" ]]; then
-        # Se borra el mas antiguo, buscandolo con sort
-        antugio=$(find . -name "*zip" | sort | head -n 1)
-        echo "Copia de seguridad $antugio borrada correctamente el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
-        rm $antugio
-        echo "Se ha realizado la copia de seguridad correctamente."
+        # Se hace una busqueda para que solo hayan 2 copias de seguridad (compara el número de copias .zip que hay)
+        busqueda=$(find . -name "copia_usuarios*zip" | wc -l)
+        if [[ $busqueda > "2" ]]; then
+            # Se borra el mas antiguo, buscandolo con sort
+            antugio=$(find . -name "*zip" | sort | head -n 1)
+            echo "Copia de seguridad $antugio borrada correctamente el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
+            rm $antugio
+            echo "Se ha realizado la copia de seguridad correctamente."
+            echo ""
+        fi
+    }
+
+    function github() {
+        echo "AVISO: PARA EL CORRECTO FUNCIONAMIENTO DEL PROGRAMA,
+DEBES TENER CONFIGURADO GIT EN TU ORDENADOR"
         echo ""
-    fi
+        echo "SI NO SABES CONFIGURAR GIT, PORFAVOR,
+PULSA: CTRL + CLICK IZQ EN EL SIGUIENTE ENLACE"
+        echo ""
+        echo "https://snchezz.github.io/tutorialgithubvscodev2/"
+        sleep 2s
+        echo "Elige una de estas opciones"
+        echo " 1) CREAR REPOSITORIO
+ 2) ACTUALIZAR REPOSITORIO YA CREADO
+ 3) VOLVER ATRAS
+ 4) SALIR"
+
+        read opc
+        case $opc in
+        "1")
+            echo "Crear repositorio"
+            echo ""
+            # Creamos el repositorio
+            git init
+            echo "Repositorio creado"
+            sleep 1s
+            echo ""
+            # Pedimos el enlace de origin que se muestra al iniciar un repositorio en Git Hub
+            echo "Añade el origin como este: https://github.com/usuario/repositorio.git"
+            read origin
+            regex='(https?)://github.com/*[-[:alnum:]\+&@#/%=~_|]'
+            string="$origin"
+            if [[ $origin =~ $regex ]]; then
+                # Si lo es, empazará la súbida de archivos
+                git remote add origin $origin
+                git add .
+                sleep 1s
+                echo ""
+                # Preguntamos la versión que queremos poner en el commit
+                echo "¿Que version es? Por ejemplo V1"
+                read version
+                git commit -m "$version"
+                git push -u origin master
+                echo ""
+                echo "Todo ha funcionado correctamente"
+            else
+                # Si no se ha introducido un enlace o no es de la estructura pedida, se notificara al usuario
+                echo "El enlace debe seguir esta estructura: https://github.com/usuario/repositorio.git"
+                exit 1
+            fi
+            ;;
+        "2")
+            echo "Actualizar repositorio"
+            git add .
+            echo ""
+            echo "¿Que version es? Por ejemplo V1"
+            read version
+            git commit -m "$version"
+            git push -u origin master
+            echo ""
+            echo "Repositorio actualizado correctamente"
+            exit 0
+            ;;
+        "3")
+            clear
+            menu
+            ;;
+        "4")
+            echo "Saliendo del sistema..."
+            exit 0
+            ;;
+        *)
+            echo "La opción que has introducido no existe,
+    porfavor, elige un número del 1 al 4"
+            exit 2
+            ;;
+        esac
+
+    }
+
+    while true; do
+        echo ""
+        echo "Elige donde quieres guardar las copias:"
+        echo "1.- EN LOCAL"
+        echo "2.- EN GITHUB"
+        echo "3.- VOLVER ATRAS"
+        read opcuserscopy
+
+        case $opcuserscopy in
+        1)
+            copialocal
+            ;;
+        2)
+            clear
+            if [[ $rootTrue -eq 1 ]]; then
+                github
+            else
+                echo "Accion no permitida para este usuario, solo puedes crear copias de seguridad en local"
+            fi
+            ;;
+        3)
+            echo ""
+            menu
+            ;;
+        *)
+            # Si no se ha elegido una opción válida
+            echo "Elige una opción válida. Si quieres volver atras, pulsa 3"
+            sleep 1s
+            echo ""
+            ;;
+        esac
+    done
+
     # GITHUB?
 }
 
@@ -230,7 +344,7 @@ function menu() {
             copia
             ;;
         2)
-            if [ $rootTrue -eq 1 ]; then
+            if [[ $rootTrue -eq 1 ]]; then
                 alta
             else
                 echo "Accion no permitida para este usuario"
@@ -238,7 +352,7 @@ function menu() {
             fi
             ;;
         3)
-            if [ $rootTrue -eq 1 ]; then
+            if [[ $rootTrue -eq 1 ]]; then
                 baja
             else
                 echo "Accion no permitida para este usuario"
