@@ -101,7 +101,7 @@ PULSA: CTRL + CLICK IZQ EN EL SIGUIENTE ENLACE"
             git push -u origin master
             echo ""
             echo "Repositorio actualizado correctamente"
-            sleep 1s
+            sleep 3s
             clear
             menu
             ;;
@@ -154,8 +154,6 @@ PULSA: CTRL + CLICK IZQ EN EL SIGUIENTE ENLACE"
             ;;
         esac
     done
-
-    # GITHUB?
 }
 
 function alta() {
