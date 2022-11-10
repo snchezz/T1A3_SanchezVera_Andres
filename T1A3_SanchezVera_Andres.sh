@@ -8,17 +8,12 @@
 # Exit code 3: Intentos maximos permitidos
 # Exit code 4: Archivo usuarios.csv vacio
 
-# Lo primero que hara el sistema es comprobar si el archivo usuarios.csv este creado, si no lo esta, lo creara
-if ! [ -f usuarios.csv ]; then
-    touch usuarios.csv
-fi
-
 function archivoVacio() {
     if [ -s usuarios.csv ]; then
-        # Cuando el archivo este vacio, se le pondra la variable 0
+        # Cuando el archivo tiene datos , se le pondra la variable 0
         archivoUsuarioVacio=0
     else
-        # Cuando el archivo este vacio, se le pondra la variable 1
+        # Cuando el archivo este VACIO, se le pondra la variable 1
         archivoUsuarioVacio=1
     fi
 }
@@ -75,7 +70,7 @@ function alta() {
     existe
     # Si hay 1, significara que ese DNI ya se ha utilizado, por tanto, ya estará esa persona en el sistema
 
-    if [[ $existeUser = "1" ]]; then
+    if [[ $existeUser -eq 1 ]]; then
         echo "Lo sentimos, este DNI ya esta registrado en el sistema."
         echo "Intentalo de nuevo o inicia sesion con tu usuario"
         exit 2
@@ -113,7 +108,7 @@ function existe() {
 
 function baja() {
     archivoVacio
-    if [[ $archivoUsuarioVacio = "1" ]]; then
+    if [ $archivoUsuarioVacio -eq 1 ]; then
         echo "El archivo usuarios.csv, esta vacio, por lo tanto no se podrá dar de baja a ningun usuario"
         exit 4
     fi
@@ -122,7 +117,9 @@ function baja() {
     read dni
     comprobarDNI
     existe
-    if [[ $existeUser = "1" ]]; then
+
+    # Mirar corchertes y iguales en ifs
+    if [[ $existeUser -eq 1 ]]; then
         echo "El usuario con DNI $dni se ha eliminado del sistema correctamente."
 
         # Recuperamos el usuario antes de borrarlo para meterlo en el log
@@ -149,7 +146,9 @@ function mostrar_log() {
 }
 
 function mostrar_usuarios() {
-    if [[ $archivoUsuarioVacio = "1" ]]; then
+    archivoVacio
+    if [[ $archivoUsuarioVacio -eq 1 ]]; then
+        echo ""
         echo "El archivo usuarios.csv, esta vacio, por lo tanto no se podrá mostrar ningun usuario"
         exit 4
     else
@@ -212,7 +211,6 @@ function mostrar_usuarios() {
             esac
         done
     fi
-
 }
 
 function menu() {
@@ -232,7 +230,7 @@ function menu() {
             copia
             ;;
         2)
-            if [[ $rootTrue = "1" ]]; then
+            if [ $rootTrue -eq 1 ]; then
                 alta
             else
                 echo "Accion no permitida para este usuario"
@@ -240,7 +238,7 @@ function menu() {
             fi
             ;;
         3)
-            if [[ $rootTrue = "1" ]]; then
+            if [ $rootTrue -eq 1 ]; then
                 baja
             else
                 echo "Accion no permitida para este usuario"
@@ -275,7 +273,7 @@ function login() {
     sleep 2s
 
     archivoVacio
-    if [[ $archivoUsuarioVacio = "1" ]]; then
+    if [[ $archivoUsuarioVacio -eq 1 ]]; then
         echo "El archivo usuarios.csv, esta vacio, por lo tanto no se podrá iniciar sesion ningun usuario"
         exit 4
     fi
@@ -291,7 +289,7 @@ function login() {
         # Afinar que solo busque nombres de usuarios, ya que si pones el nombre tb lo coge
         nombreUsername=$(awk -F ":" '{print $5}' usuarios.csv | grep -o $username usuarios.csv)
 
-        if [[ $existeUsername = "1" ]]; then
+        if [ $existeUsername -eq 1 ]; then
             echo ""
             echo ""
             echo "¡Bienvenido $nombreUsername!"
@@ -302,6 +300,11 @@ function login() {
         fi
     done
 }
+
+# Lo primero que hara el sistema es comprobar si el archivo usuarios.csv este creado, si no lo esta, lo creara
+if ! [ -f usuarios.csv ]; then
+    touch usuarios.csv
+fi
 
 # Para entrar como admin deberemos usar -root como parametro
 if [ "$1" = "-root" ]; then
