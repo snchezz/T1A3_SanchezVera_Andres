@@ -7,6 +7,8 @@
 # Exit code 2: Usuario (DNI) ya en el sistema
 # Exit code 3: Intentos maximos permitidos
 # Exit code 4: Archivo usuarios.csv vacio
+# Exit code 5: GITHUB Se ha introducido un origen que o no es un enlace o no sigue la estructura permitida.
+# Exit code 6: GITHUB Se ha introducido un parametro no permitido.
 
 function archivoVacio() {
     if [ -s usuarios.csv ]; then
@@ -80,6 +82,9 @@ PULSA: CTRL + CLICK IZQ EN EL SIGUIENTE ENLACE"
                 git push -u origin master
                 echo ""
                 echo "Todo ha funcionado correctamente"
+                sleep 1s
+                clear
+                menu
             else
                 # Si no se ha introducido un enlace o no es de la estructura pedida, se notificara al usuario
                 echo "El enlace debe seguir esta estructura: https://github.com/usuario/repositorio.git"
@@ -96,7 +101,9 @@ PULSA: CTRL + CLICK IZQ EN EL SIGUIENTE ENLACE"
             git push -u origin master
             echo ""
             echo "Repositorio actualizado correctamente"
-            exit 0
+            sleep 1s
+            clear
+            menu
             ;;
         "3")
             clear
