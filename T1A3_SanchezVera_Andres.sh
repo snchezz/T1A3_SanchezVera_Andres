@@ -223,7 +223,7 @@ function generauser() {
 
 function existe() {
     # Contamos el número de veces que esta el DNI introducido en el sistema
-    existeUser=$(grep -i $dni usuarios.csv | wc -l)
+    existeUser=$(grep -w "$dni" usuarios.csv | wc -l)
 }
 
 function baja() {
@@ -412,11 +412,11 @@ function login() {
         fi
         echo -n "Introduca nombre de usuario: "
         read -s username
-        existeUsername=$(grep -c $username usuarios.csv)
+        existeUsername=$(awk -F ":" '{print $5}' usuarios.csv | grep -w "$username" | wc -l)
         # Afinar que solo busque nombres de usuarios, ya que si pones el nombre tb lo coge
-        nombreUsername=$(awk -F ":" '{print $5}' usuarios.csv | grep -o $username usuarios.csv)
+        nombreUsername=$(awk -F ":" '{print $5}' usuarios.csv | grep -w "$username")
 
-        if [ $existeUsername -eq 1 ]; then
+        if [[ $existeUsername -eq 1 ]]; then
             echo ""
             echo ""
             echo "¡Bienvenido $nombreUsername!"
