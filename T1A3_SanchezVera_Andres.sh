@@ -3,7 +3,7 @@
 # Andrés Sánchez
 
 # Exit code 0: Todo ha funcionado correctamente.
-# Exit code 1: El formato introducido no es el correcto.
+# Exit code 1: El formato introducido no es el correcto. // NO
 # Exit code 2: Usuario (DNI) ya en el sistema
 # Exit code 3: Intentos maximos permitidos
 # Exit code 4: Archivo usuarios.csv vacio
@@ -29,11 +29,10 @@ function copia() {
 
         # Se hace una busqueda para que solo hayan 2 copias de seguridad (compara el número de copias .zip que hay)
         busqueda=$(find . -name "copia_usuarios*zip" | wc -l)
-        if [[ $busqueda > "2" ]]; then
-            # Se borra el mas antiguo, buscandolo con sort
-            antugio=$(find . -name "*zip" | sort | head -n 1)
-            echo "Copia de seguridad $antugio borrada correctamente el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
-            rm $antugio
+        if [ $busqueda -gt 2 ]; then
+            antiguo=$(find . -name "copia*zip" | xargs ls -ltr | head -1 | awk '{print $9}')
+            echo "Copia de seguridad $antiguo borrada correctamente el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
+            rm $antiguo
             echo "Se ha realizado la copia de seguridad correctamente."
             sleep 2s
             echo ""
@@ -127,7 +126,9 @@ PULSA: CTRL + CLICK IZQ EN EL SIGUIENTE ENLACE"
             exit 0
             ;;
         *)
-            echo "Elige una opción válida. Si quieres volver atras, pulsa 5"
+            echo "Elige una opción válida. Si quieres volver atras, pulsa 4"
+            sleep 2s
+            clear
             ;;
         esac
     }
@@ -162,14 +163,16 @@ PULSA: CTRL + CLICK IZQ EN EL SIGUIENTE ENLACE"
         *)
             # Si no se ha elegido una opción válida
             echo "Elige una opción válida. Si quieres volver atras, pulsa 3"
-            sleep 1s
-            echo ""
+            sleep 2s
+            clear
             ;;
         esac
     done
 }
 
 function alta() {
+    clear
+    echo "Dar de alta al nuevo usuario"
     echo ""
     # Se lee el nombre sin que se vea en consola
     echo -n "Nombre: "
@@ -178,7 +181,9 @@ function alta() {
     if [[ ${#nombre} -lt 3 ]]; then
         echo "El nombre debe tener como mínimo 3 caracteres"
         echo "Intentelo de nuevo. ¡Gracias!"
-        exit 1
+        sleep 3s
+        clear
+        menu
     fi
     echo -n "Primer Apellido: "
     read ape1
@@ -186,7 +191,9 @@ function alta() {
     if [[ ${#ape1} -lt 3 ]]; then
         echo "El primer apellido debe tener como mínimo 3 caracteres"
         echo "Intentelo de nuevo. ¡Gracias!"
-        exit 1
+        sleep 3s
+        clear
+        menu
     fi
     echo -n "Segundo Apellido: "
     read ape2
@@ -194,7 +201,9 @@ function alta() {
     if [[ ${#ape2} -lt 3 ]]; then
         echo "El segundo apellido debe tener como mínimo 3 caracteres"
         echo "Intentelo de nuevo. ¡Gracias!"
-        exit 1
+        sleep 3s
+        clear
+        menu
     fi
     # Se comprueba que el DNI siga un patron
     echo -n "DNI (12345678X): "
@@ -221,7 +230,9 @@ function comprobarDNI() {
     if ! [[ $dni =~ ^[0-9]{8}+[A-Za-z]{1} ]]; then
         echo "El DNI debe cumplir un formato, 12345678X."
         echo "Intentelo de nuevo. ¡Gracias!"
-        exit 1
+        sleep 3s
+        clear
+        menu
     fi
 }
 
@@ -234,11 +245,12 @@ function generauser() {
     usergen=$nombrecortado$ape1cortado$ape2cortado$dnicortado
 
     echo "Tu usuario generado es: $usergen"
+    sleep 2s
+    clear
     # Añadimos el usuarios al archivo usuarios.csv
     echo "$nombre:$ape1:$ape2:$dni:$usergen" >>usuarios.csv
     # Añadimos el usuarios al archivo log.log
     echo "INSERTADO $nombre:$ape1:$ape2:$dni:$usergen el $(date +%d%m%Y) a las $(date +%H:%M)" >>log.log
-    echo ""
 }
 
 function existe() {
@@ -254,7 +266,10 @@ function baja() {
         exit 4
     fi
 
-    echo "Porfavor, indica tu DNI para darte de baja en el sistema:"
+    clear
+
+    echo "Dar de baja a un usuario"
+    echo "Porfavor, indica el DNI del usuario que hay que dar de baja en el sistema:"
     read dni
     comprobarDNI
     existe
@@ -262,6 +277,8 @@ function baja() {
     # Si el usuario existe se borrara el DNI
     if [[ $existeUser -eq 1 ]]; then
         echo "El usuario con DNI $dni se ha eliminado del sistema correctamente."
+        sleep 2s
+        clear
 
         # Recuperamos el usuario antes de borrarlo para meterlo en el log
         userBorrado=$(grep -w "$dni" usuarios.csv)
@@ -270,11 +287,11 @@ function baja() {
         # Eliminamos el user mostrando todo el documento inverso del que hemos buscado con -v
         eliminarUserDNI=$(grep -v $dni usuarios.csv)
         echo "$eliminarUserDNI" >usuarios.csv
-        echo ""
     else
         # Si el DNI no esta registrado se notificara
         echo "El DNI $dni no esta registrado en el sistema"
-        echo ""
+        sleep 2s
+        clear
     fi
 }
 
@@ -354,8 +371,8 @@ function mostrar_usuarios() {
             *)
                 # Si no se ha elegido una opción válida
                 echo "Elige una opción válida. Si quieres volver atras, pulsa 5"
-                sleep 1s
-                echo ""
+                sleep 2s
+                clear
                 ;;
             esac
         done
@@ -424,8 +441,8 @@ function menu() {
         *)
             # Si no se ha elegido una opción válida
             echo "Elige una opción válida. Si quieres salir, pulsa 7"
-            sleep 1s
-            echo ""
+            sleep 2s
+            clear
             ;;
         esac
     done
@@ -445,11 +462,10 @@ function login() {
     fi
 
     # 3 intentos de inicio de sesion
-    for i in {1..4}; do
-        if [[ "$i" == '4' ]]; then
-            echo "Has superado los intentos máximos de inicio de sesión"
-            exit 3
-        fi
+    # Creamos la variable x, que sera el número de intentos, iniciado a 0
+    x=0
+    # Los intentos serán 0, 1 y 2. Siempre y cuando la x sea menor o igual que 2, el bucle seguira
+    while [ $x -le 2 ]; do
         echo -n "Introduzca nombre de usuario: "
         read -s username
         # Busqueda del usuario con awk para elegir la columna y el comando grep -w para que sea exacto
@@ -462,9 +478,17 @@ function login() {
             echo "¡Bienvenido $nombreUsername!"
             echo "Ha iniciado sesion $nombreUsername el dia $(date +%d-%m-%Y) a las $(date +%H:%M)" >>log.log
             menu
+            x=3
         else
             # Si no existe se notificara
             echo "El usuario no esta registrado en el sistema, intentelo de nuevo"
+        fi
+        # Por cada vuelta del bucle, sumamos 1 a la x, nuestro contador de intentos
+        x=$(($x + 1))
+        # Si este llega a 3, significara que se han hecho el máximo de intentos (0, 1 y 2) y por lo tanto se notificara
+        if [ $x -eq 3 ]; then
+            echo "Has superado el máximo de intentos"
+            exit 3
         fi
     done
 }
@@ -477,6 +501,7 @@ fi
 # Para entrar como admin deberemos usar -root como parametro
 if [ "$1" = "-root" ]; then
     rootTrue=1
+    clear
     echo "Bienvenido admin"
     echo "Ha iniciado sesion administrador el dia $(date +%d-%m-%Y) a las $(date +%H:%M)" >>log.log
     menu
