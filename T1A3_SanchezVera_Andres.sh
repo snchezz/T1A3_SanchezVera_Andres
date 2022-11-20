@@ -3,7 +3,7 @@
 # Andrés Sánchez
 
 # Exit code 0: Todo ha funcionado correctamente.
-# Exit code 1: El formato introducido no es el correcto. // NO
+# Exit code 1: El formato introducido no es el correcto. // Desactivado
 # Exit code 2: Usuario (DNI) ya en el sistema
 # Exit code 3: Intentos maximos permitidos
 # Exit code 4: Archivo usuarios.csv vacio
